@@ -16,7 +16,6 @@ class SGAccountAPI {
             case .Success(let response):
                 do {
                     let resultData = try NSJSONSerialization.JSONObjectWithData(response.data, options: .AllowFragments) as! [String: AnyObject]
-//                    let resultData = try response. as! [String : AnyObject]
                     let code = resultData["ret"] as! Int
                     
                     if code == 0 {
@@ -32,5 +31,33 @@ class SGAccountAPI {
                 failure(error: .Failure)
             }
         }
+    }
+    
+    static func sendLoginRequest(username: String, password: String, success: (userModel: UserModel) -> Void, failure: (error: SGError) -> Void) -> Void {
+        SwiftGGProvider.request(.Login(username, password)) { result in
+            switch result {
+            case .Success(let response):
+                do {
+                    
+                    let resultData = try NSJSONSerialization.JSONObjectWithData(response.data, options: .AllowFragments) as! [String: AnyObject]
+                    let code = resultData["ret"] as! Int
+                    
+                    if code == 0 {
+                        let userModel = UserModel(jsonDict: resultData["data"] as! [String: AnyObject])
+                        success(userModel: userModel)
+                    } else {
+                        failure(error: .Failure)
+                    }
+                } catch {
+                    failure(error: .Failure)
+                }
+            case .Failure:
+                failure(error: .Failure)
+            }
+        }
+    }
+    
+    static func sendOAuthGitHubRequest(token: String) {
+        
     }
 }
